@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { FiBookOpen } from 'react-icons/fi';
-import PatientForm from '../components/chat/PatientForm';
-import ChatWindow from '../components/chat/ChatWindow';
-import EvidencePanel from '../components/chat/EvidencePanel';
-import { useTriageChat } from '../hooks/useChat';
-import { useChat } from '../context/ChatContext';
-import { motion, AnimatePresence } from 'framer-motion';
-import toast from 'react-hot-toast';
+import { AnimatePresence, motion } from "framer-motion";
+import { AlertTriangle } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { FiBookOpen } from "react-icons/fi";
+import ChatWindow from "../components/chat/ChatWindow";
+import EvidencePanel from "../components/chat/EvidencePanel";
+import PatientForm from "../components/chat/PatientForm";
+import { useChat } from "../context/ChatContext";
+import { useTriageChat } from "../hooks/useChat";
 
 export default function TriageChat() {
   const { submitTriage, retrievedChunks } = useTriageChat();
@@ -26,7 +27,7 @@ export default function TriageChat() {
         setShowEvidence(true);
       }
     } catch {
-      toast.error('Triage request failed. Please try again.');
+      toast.error("Triage request failed. Please try again.");
     }
   };
 
@@ -40,11 +41,15 @@ export default function TriageChat() {
       {/* Center: Chat */}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-          <h2 className="font-semibold text-gray-800 dark:text-gray-200">Triage Consultation</h2>
+          <h2 className="font-semibold text-gray-800 dark:text-gray-200">
+            Triage Consultation
+          </h2>
           <button
             onClick={() => setShowEvidence(!showEvidence)}
             className={`hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors ${
-              showEvidence ? 'bg-navy-100 dark:bg-navy-900/30 text-navy-800 dark:text-navy-200' : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700'
+              showEvidence
+                ? "bg-navy-100 dark:bg-navy-900/30 text-navy-800 dark:text-navy-200"
+                : "text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700"
             }`}
           >
             <FiBookOpen className="w-4 h-4" />
@@ -55,7 +60,11 @@ export default function TriageChat() {
       </div>
 
       {/* Right: Evidence Panel */}
-      <EvidencePanel chunks={retrievedChunks} isOpen={showEvidence} onClose={() => setShowEvidence(false)} />
+      <EvidencePanel
+        chunks={retrievedChunks}
+        isOpen={showEvidence}
+        onClose={() => setShowEvidence(false)}
+      />
 
       {/* Emergency Overlay */}
       <AnimatePresence>
@@ -72,13 +81,23 @@ export default function TriageChat() {
               exit={{ scale: 0.8 }}
               className="bg-white rounded-2xl p-8 max-w-lg w-full text-center shadow-2xl"
             >
-              <span className="text-6xl block mb-4">🚨</span>
-              <h2 className="text-3xl font-black text-red-600 mb-4">EMERGENCY</h2>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Immediate Referral Required</h3>
-              <p className="text-gray-600 mb-6">{emergencyData.recommendedAction}</p>
+              <span className="mx-auto mb-4 grid h-16 w-16 place-items-center rounded-2xl bg-red-50 text-red-600">
+                <AlertTriangle size={34} />
+              </span>
+              <h2 className="text-3xl font-black text-red-600 mb-4">
+                EMERGENCY
+              </h2>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">
+                Immediate Referral Required
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {emergencyData.recommendedAction}
+              </p>
               {emergencyData.redFlags?.length > 0 && (
                 <div className="bg-red-50 rounded-lg p-4 mb-6 text-left">
-                  <p className="text-sm font-bold text-red-700 mb-2">Red Flags Detected:</p>
+                  <p className="text-sm font-bold text-red-700 mb-2">
+                    Red Flags Detected:
+                  </p>
                   <ul className="text-sm text-red-600 space-y-1">
                     {emergencyData.redFlags.map((f, i) => (
                       <li key={i}>• {f.value}</li>

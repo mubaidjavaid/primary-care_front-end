@@ -1,12 +1,39 @@
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
+import { motion } from "framer-motion";
+import {
+    Activity,
+    AlertTriangle,
+    ClipboardCheck,
+    ShieldCheck,
+    Stethoscope,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const features = [
-  { icon: '🩺', title: 'AI-Powered Triage', desc: 'Evidence-based triage assessment using clinical guidelines from WHO, MoH Pakistan, and IMCI protocols.' },
-  { icon: '🚨', title: 'Red Flag Detection', desc: 'Automatic detection of emergency symptoms with instant alerts for critical cases requiring immediate referral.' },
-  { icon: '📋', title: 'Guideline-Grounded', desc: 'All recommendations are grounded in uploaded clinical guidelines — no hallucination, no speculation.' },
-  { icon: '📊', title: 'Audit Trail', desc: 'Every triage query is logged for review, quality assurance, and clinical audit purposes.' },
+  {
+    Icon: Stethoscope,
+    iconClass: "text-blue-700",
+    title: "AI-Powered Triage",
+    desc: "Evidence-based triage assessment using clinical guidelines from WHO, MoH Pakistan, and IMCI protocols.",
+  },
+  {
+    Icon: AlertTriangle,
+    iconClass: "text-red-600",
+    title: "Red Flag Detection",
+    desc: "Automatic detection of emergency symptoms with instant alerts for critical cases requiring immediate referral.",
+  },
+  {
+    Icon: ClipboardCheck,
+    iconClass: "text-emerald-700",
+    title: "Guideline-Grounded",
+    desc: "All recommendations are grounded in uploaded clinical guidelines without unsupported speculation.",
+  },
+  {
+    Icon: Activity,
+    iconClass: "text-amber-700",
+    title: "Audit Trail",
+    desc: "Every triage query is logged for review, quality assurance, and clinical audit purposes.",
+  },
 ];
 
 export default function Home() {
@@ -16,21 +43,33 @@ export default function Home() {
     <div className="min-h-screen bg-medical-light dark:bg-gray-900">
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-4 py-16 lg:py-24 text-center">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <span className="text-6xl mb-6 block">🩺</span>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <span className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-2xl bg-blue-50 text-blue-700">
+            <ShieldCheck size={34} />
+          </span>
           <h1 className="text-4xl lg:text-5xl font-bold text-navy-900 dark:text-white mb-4">
             Primary Care Triage Assistant
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
-            AI-powered clinical decision support for Pakistan's Basic Health Units and Rural Health Centers. 
-            Evidence-based triage using WHO and MoH guidelines.
+            AI-powered clinical decision support for Pakistan's Basic Health
+            Units and Rural Health Centers. Evidence-based triage using WHO and
+            MoH guidelines.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to={user ? '/triage' : '/login'} className="btn-primary text-lg px-8 py-3">
-              {user ? 'Start Triage' : 'Get Started'}
+            <Link
+              to={user ? "/triage" : "/login"}
+              className="btn-primary text-lg px-8 py-3"
+            >
+              {user ? "Start Triage" : "Get Started"}
             </Link>
             {!user && (
-              <Link to="/login" className="text-navy-600 dark:text-navy-300 font-medium hover:underline text-lg">
+              <Link
+                to="/login"
+                className="text-navy-600 dark:text-navy-300 font-medium hover:underline text-lg"
+              >
                 Sign In
               </Link>
             )}
@@ -49,9 +88,15 @@ export default function Home() {
               transition={{ delay: i * 0.1 }}
               className="card text-center"
             >
-              <span className="text-4xl mb-3 block">{f.icon}</span>
-              <h3 className="font-bold text-navy-900 dark:text-white mb-2">{f.title}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{f.desc}</p>
+              <span className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-xl bg-slate-50">
+                <f.Icon size={24} className={f.iconClass} />
+              </span>
+              <h3 className="font-bold text-navy-900 dark:text-white mb-2">
+                {f.title}
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                {f.desc}
+              </p>
             </motion.div>
           ))}
         </div>

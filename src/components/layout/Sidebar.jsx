@@ -1,109 +1,229 @@
-import { useEffect } from 'react';
-import { useChat } from '../../context/ChatContext';
-import { FiPlus, FiMessageSquare, FiTrash2, FiX } from 'react-icons/fi';
-import { motion, AnimatePresence } from 'framer-motion';
+import { formatDistanceToNow } from "date-fns";
+import { ChevronRight, LogOut, Plus, Settings } from "lucide-react";
+import { useEffect } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { authService } from "../../services/auth.service";
+import { chatService } from "../../services/chat.service";
+import { useAuthStore } from "../../store/authStore";
+import { useChatStore } from "../../store/chatStore";
+import UrgencyBadge from "../ui/UrgencyBadge";
 
-export default function Sidebar({ isOpen, onClose }) {
-  const { sessions, activeSession, fetchSessions, createSession, loadSession, deleteSession, clearMessages } = useChat();
+export default function Sidebar({ compact = false }) {
+  const navigate = useNavigate();
+  const sessions = useChatStore((state) => state.sessions);
+  const activeSessionId = useChatStore((state) => state.activeSessionId);
+  const setActiveSession = useChatStore((state) => state.setActiveSession);
+  const setSessions = useChatStore((state) => state.setSessions);
+  const createSession = useChatStore((state) => state.createSession);
+  const setSessionMessages = useChatStore((state) => state.setSessionMessages);
+  const setPatientInfo = useChatStore((state) => state.setPatientInfo);
+  const logout = useAuthStore((state) => state.logout);
+  const user = useAuthStore((state) => state.user);
+  const isClinicalUser = ["doctor", "viewer"].includes(user?.role);
 
   useEffect(() => {
-    fetchSessions();
-  }, [fetchSessions]);
+    if (!isClinicalUser) {
+      setSessions([]);
+      setActiveSession(null);
+      return;
+    }
 
-  const handleNewChat = async () => {
-    clearMessages();
-    onClose?.();
+    let mounted = true;
+
+    const hydrateSessions = async () => {
+      try {
+        const { data } = await chatService.getSessions();
+        if (!mounted) return;
+        const allSessions = Array.isArray(data) ? data : [];
+        setSessions(allSessions);
+
+        if (!allSessions.length) return;
+        const first = allSessions[0];
+        setActiveSession(first._id);
+        const detail = await chatService.getSession(first._id);
+        if (!mounted) return;
+        setSessionMessages(first._id, detail.data?.messages || []);
+      } catch {
+        // Ignore hydration errors in UI and allow manual flow.
+      }
+    };
+
+    hydrateSessions();
+
+    return () => {
+      mounted = false;
+    };
+  }, [isClinicalUser, setActiveSession, setSessionMessages, setSessions]);
+
+  const handleNewSession = () => {
+    (async () => {
+      try {
+        const { data } = await chatService.createSession({
+          title: "New Consultation",
+        });
+        createSession({
+          ...data,
+          messageCount: 0,
+          urgencyLevel: "Routine",
+        });
+        setSessionMessages(data._id, []);
+      } catch {
+        createSession({
+          _id: crypto.randomUUID(),
+          title: "New Consultation",
+          updatedAt: new Date().toISOString(),
+          messageCount: 0,
+          urgencyLevel: "Routine",
+        });
+      } finally {
+        setPatientInfo({});
+        navigate("/triage");
+      }
+    })();
   };
 
-  const handleLoadSession = async (id) => {
-    await loadSession(id);
-    onClose?.();
+  const handleOpenSession = async (sessionId) => {
+    setActiveSession(sessionId);
+    navigate("/triage");
+    try {
+      const { data } = await chatService.getSession(sessionId);
+      setSessionMessages(sessionId, data?.messages || []);
+    } catch {
+      setSessionMessages(sessionId, []);
+    }
   };
 
-  const sidebarContent = (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold text-gray-800 dark:text-gray-200">Consultations</h2>
-          <button onClick={onClose} className="lg:hidden p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700">
-            <FiX className="w-5 h-5" />
-          </button>
-        </div>
-        <button onClick={handleNewChat} className="w-full flex items-center gap-2 btn-primary justify-center text-sm">
-          <FiPlus className="w-4 h-4" />
-          New Consultation
-        </button>
-      </div>
+  const handleSettings = () => {
+    try {
+      if (user?.role === "superadmin") {
+        navigate("/superadmin");
+        return;
+      }
+      if (user?.role === "admin") {
+        navigate("/admin");
+        return;
+      }
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Unable to navigate. Please try again.");
+      console.error("Navigation error:", error);
+    }
+  };
 
-      <div className="flex-1 overflow-y-auto p-2 space-y-1">
-        <AnimatePresence>
-          {sessions.map((session) => (
-            <motion.div
-              key={session._id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className={`group flex items-center gap-2 p-3 rounded-lg cursor-pointer transition-colors ${
-                activeSession?._id === session._id
-                  ? 'bg-navy-100 dark:bg-navy-900/30 text-navy-900 dark:text-white'
-                  : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
-              }`}
-              onClick={() => handleLoadSession(session._id)}
-            >
-              <FiMessageSquare className="w-4 h-4 shrink-0" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{session.title}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {new Date(session.updatedAt || session.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-              <button
-                onClick={(e) => { e.stopPropagation(); deleteSession(session._id); }}
-                className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 transition-all"
-              >
-                <FiTrash2 className="w-3.5 h-3.5" />
-              </button>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-
-        {sessions.length === 0 && (
-          <p className="text-center text-sm text-gray-400 dark:text-gray-500 mt-8">No consultations yet</p>
-        )}
-      </div>
-    </div>
-  );
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+    } catch {
+      // Clear local auth state even if server-side logout call fails.
+    } finally {
+      logout();
+      navigate("/login", { replace: true });
+    }
+  };
 
   return (
-    <>
-      {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-72 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex-col">
-        {sidebarContent}
-      </aside>
+    <aside
+      className={`relative h-full border-r border-medical-border bg-white ${compact ? "w-16 p-2" : "w-[280px] p-4"}`}
+    >
+      <div className="mb-4">
+        <div className="mb-3 flex items-center gap-2">
+          <div className="grid h-9 w-9 place-items-center rounded-lg bg-navy-700 text-white">
+            +
+          </div>
+          {!compact && (
+            <div>
+              <h1 className="font-display text-xl text-navy-900">Triage AI</h1>
+              <p className="text-xs text-medical-muted">
+                {isClinicalUser ? "Clinical workspace" : "Admin workspace"}
+              </p>
+            </div>
+          )}
+        </div>
 
-      {/* Mobile overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-              onClick={onClose}
-            />
-            <motion.aside
-              initial={{ x: -288 }}
-              animate={{ x: 0 }}
-              exit={{ x: -288 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="fixed left-0 top-0 bottom-0 w-72 bg-white dark:bg-gray-800 z-50 lg:hidden shadow-xl"
-            >
-              {sidebarContent}
-            </motion.aside>
-          </>
+        {!compact && isClinicalUser && (
+          <button
+            type="button"
+            className="btn-primary w-full justify-center gap-2"
+            onClick={handleNewSession}
+          >
+            <Plus size={16} /> New Triage Session
+          </button>
         )}
-      </AnimatePresence>
-    </>
+      </div>
+
+      {!compact && isClinicalUser && (
+        <div className="mb-3 text-xs font-semibold uppercase text-medical-muted">
+          Chat History
+        </div>
+      )}
+      {isClinicalUser && (
+        <div className="space-y-2 overflow-y-auto pb-16">
+          {sessions.map((session) => (
+            <button
+              key={session._id}
+              type="button"
+              className={`w-full rounded-xl border p-3 text-left ${activeSessionId === session._id ? "border-navy-600 bg-blue-50" : "border-transparent hover:border-medical-border hover:bg-slate-50"}`}
+              onClick={() => handleOpenSession(session._id)}
+            >
+              {!compact && (
+                <>
+                  <p className="truncate text-sm font-semibold text-slate-800">
+                    {session.title || "Triage Session"}
+                  </p>
+                  <p className="mt-1 text-xs text-medical-muted">
+                    {formatDistanceToNow(
+                      new Date(session.updatedAt || Date.now()),
+                      { addSuffix: true },
+                    )}{" "}
+                    · {session.messageCount || 0} queries
+                  </p>
+                  <div className="mt-2">
+                    <UrgencyBadge level={session.urgencyLevel || "Routine"} />
+                  </div>
+                </>
+              )}
+              {compact && (
+                <ChevronRight size={16} className="mx-auto text-slate-500" />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {!compact && !isClinicalUser && (
+        <div className="space-y-2">
+          <button
+            type="button"
+            className="btn-primary w-full justify-center"
+            onClick={() =>
+              navigate(user?.role === "superadmin" ? "/superadmin" : "/admin")
+            }
+          >
+            Open {user?.role === "superadmin" ? "Super Admin" : "Admin"}{" "}
+            Dashboard
+          </button>
+        </div>
+      )}
+
+      {!compact && (
+        <div className="absolute bottom-4 left-4 right-4 space-y-2">
+          <button
+            type="button"
+            className="btn-secondary w-full justify-start gap-2"
+            onClick={handleSettings}
+          >
+            <Settings size={14} /> Settings
+          </button>
+          <button
+            type="button"
+            className="btn-secondary w-full justify-start gap-2"
+            onClick={handleLogout}
+          >
+            <LogOut size={14} /> Logout
+          </button>
+        </div>
+      )}
+    </aside>
   );
 }

@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useAuth } from '../context/AuthContext';
-import toast from 'react-hot-toast';
+import { motion } from "framer-motion";
+import { Stethoscope } from "lucide-react";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const [isRegister, setIsRegister] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const { login, register } = useAuth();
   const navigate = useNavigate();
@@ -17,14 +18,14 @@ export default function Login() {
     try {
       if (isRegister) {
         await register(form.name, form.email, form.password);
-        toast.success('Account created successfully');
+        toast.success("Account created successfully");
       } else {
         await login(form.email, form.password);
-        toast.success('Welcome back!');
+        toast.success("Welcome back!");
       }
-      navigate('/triage');
+      navigate("/triage");
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Authentication failed');
+      toast.error(err.response?.data?.message || "Authentication failed");
     } finally {
       setLoading(false);
     }
@@ -38,20 +39,28 @@ export default function Login() {
         className="w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <span className="text-5xl">🩺</span>
-          <h1 className="text-2xl font-bold text-navy-900 dark:text-white mt-4">TriageCare</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">Primary Care Triage Assistant</p>
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-blue-50 text-blue-700">
+            <Stethoscope size={28} />
+          </span>
+          <h1 className="text-2xl font-bold text-navy-900 dark:text-white mt-4">
+            TriageCare
+          </h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">
+            Primary Care Triage Assistant
+          </p>
         </div>
 
         <div className="card">
           <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6">
-            {isRegister ? 'Create Account' : 'Sign In'}
+            {isRegister ? "Create Account" : "Sign In"}
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {isRegister && (
               <div>
-                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Name</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                  Name
+                </label>
                 <input
                   type="text"
                   value={form.name}
@@ -63,7 +72,9 @@ export default function Login() {
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                Email
+              </label>
               <input
                 type="email"
                 value={form.email}
@@ -74,7 +85,9 @@ export default function Login() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Password</label>
+              <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">
+                Password
+              </label>
               <input
                 type="password"
                 value={form.password}
@@ -85,18 +98,26 @@ export default function Login() {
                 placeholder="Min 6 characters"
               />
             </div>
-            <button type="submit" disabled={loading} className="btn-primary w-full">
-              {loading ? 'Please wait...' : isRegister ? 'Create Account' : 'Sign In'}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full"
+            >
+              {loading
+                ? "Please wait..."
+                : isRegister
+                  ? "Create Account"
+                  : "Sign In"}
             </button>
           </form>
 
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">
-            {isRegister ? 'Already have an account?' : "Don't have an account?"}
+            {isRegister ? "Already have an account?" : "Don't have an account?"}
             <button
               onClick={() => setIsRegister(!isRegister)}
               className="ml-1 text-navy-600 dark:text-navy-300 font-medium hover:underline"
             >
-              {isRegister ? 'Sign In' : 'Create Account'}
+              {isRegister ? "Sign In" : "Create Account"}
             </button>
           </p>
         </div>

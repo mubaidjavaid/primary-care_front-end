@@ -4,32 +4,63 @@
 
 @layer base {
   * {
-    @apply box-border;
+    @apply box-border font-ui;
   }
+
   body {
-    @apply font-sans text-gray-800 dark:text-gray-100 antialiased;
+    @apply bg-medical-bg text-slate-900 antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight text-navy-900;
+  }
+
+  p {
+    @apply font-body;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-navy-500 ring-offset-2;
   }
 }
 
 @layer components {
-  .btn-primary {
-    @apply bg-navy-900 text-white px-6 py-2.5 rounded-lg font-medium
-           hover:bg-navy-800 active:bg-navy-950 transition-colors duration-200
-           disabled:opacity-50 disabled:cursor-not-allowed;
+  .app-shell {
+    @apply min-h-screen bg-medical-bg;
   }
-  .btn-danger {
-    @apply bg-medical-red text-white px-6 py-2.5 rounded-lg font-medium
-           hover:bg-red-700 active:bg-red-800 transition-colors duration-200;
-  }
+
   .card {
-    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100
-           dark:border-gray-700 p-6;
+    @apply rounded-card border border-medical-border bg-medical-card shadow-card;
   }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-button bg-navy-700 px-4 py-2 text-sm font-semibold text-white transition-default duration-default ease-default hover:-translate-y-0.5 hover:bg-navy-600 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-button border border-medical-border bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition-default duration-default ease-default hover:bg-slate-50;
+  }
+
   .input-field {
-    @apply w-full px-4 py-2.5 rounded-lg border border-gray-200 dark:border-gray-600
-           bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100
-           focus:ring-2 focus:ring-navy-400 focus:border-transparent
-           outline-none transition-all duration-200 placeholder:text-gray-400;
+    @apply w-full rounded-input border border-medical-border bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-medical-muted transition-default duration-default ease-default;
+  }
+
+  .urgency-routine {
+    @apply border-routine-border bg-routine-bg text-routine-text;
+  }
+
+  .urgency-urgent {
+    @apply border-urgent-border bg-urgent-bg text-urgent-text;
+  }
+
+  .urgency-emergency {
+    @apply border-emergency-border bg-emergency-bg text-emergency-text;
+  }
+
+  .urgency-insufficient {
+    @apply border-insufficient-border bg-insufficient-bg text-insufficient-text;
   }
 }
 

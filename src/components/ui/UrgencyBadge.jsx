@@ -1,22 +1,36 @@
-import { motion } from 'framer-motion';
-import { getUrgencyConfig } from '../../utils/formatTriage';
+const map = {
+  routine: {
+    cls: "urgency-routine",
+    text: "Routine — Manage at facility",
+    dot: "bg-emerald-500",
+  },
+  urgent: {
+    cls: "urgency-urgent",
+    text: "Urgent — Priority attention needed",
+    dot: "bg-amber-500",
+  },
+  emergency: {
+    cls: "urgency-emergency",
+    text: "EMERGENCY — Immediate referral",
+    dot: "bg-red-600",
+  },
+  insufficient: {
+    cls: "urgency-insufficient",
+    text: "Insufficient guideline data",
+    dot: "bg-slate-400",
+  },
+};
 
-export default function UrgencyBadge({ level, size = 'md' }) {
-  const config = getUrgencyConfig(level);
-  const sizeClasses = {
-    sm: 'px-2 py-0.5 text-xs',
-    md: 'px-3 py-1 text-sm',
-    lg: 'px-4 py-1.5 text-base',
-  };
+export default function UrgencyBadge({ level = "Routine" }) {
+  const key = String(level || "Routine").toLowerCase();
+  const item = map[key] || map.routine;
 
   return (
-    <motion.span
-      initial={{ scale: 0.8, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      className={`inline-flex items-center gap-1.5 font-bold rounded-full ${config.bg} ${config.text} ${sizeClasses[size]}`}
+    <span
+      className={`inline-flex items-center gap-2 rounded-badge border px-3 py-1 text-xs font-semibold ${item.cls} ${key === "emergency" ? "animate-pulse" : ""}`}
     >
-      <span>{config.icon}</span>
-      <span>{config.label}</span>
-    </motion.span>
+      <span aria-hidden className={`h-2.5 w-2.5 rounded-full ${item.dot}`} />
+      <span>{item.text}</span>
+    </span>
   );
 }

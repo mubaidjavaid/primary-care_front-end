@@ -1,38 +1,32 @@
-import { motion } from 'framer-motion';
-import TriageCard from './TriageCard';
-import { formatTimestamp } from '../../utils/formatTriage';
+import { motion } from "framer-motion";
+import TriageCard from "./TriageCard";
 
 export default function MessageBubble({ message }) {
-  const isUser = message.role === 'user';
+  const isUser = message.role === "user";
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`flex items-start gap-3 px-4 ${isUser ? 'flex-row-reverse' : ''}`}
+    <motion.article
+      initial={{ opacity: 0, x: isUser ? 20 : -20, scale: 0.95 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className={`max-w-3xl ${isUser ? "ml-auto" : ""}`}
     >
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium shrink-0 ${
-        isUser ? 'bg-navy-600 text-white' : 'bg-navy-900 text-white'
-      }`}>
-        {isUser ? 'You' : 'AI'}
-      </div>
-
-      <div className={`max-w-[85%] lg:max-w-[70%] ${isUser ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
-        {message.triageData ? (
-          <TriageCard data={message.triageData} />
-        ) : (
-          <div className={`rounded-2xl px-4 py-3 shadow-sm ${
-            isUser
-              ? 'bg-navy-600 text-white rounded-tr-none'
-              : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-tl-none border border-gray-100 dark:border-gray-700'
-          }`}>
-            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
-          </div>
-        )}
-        <span className="text-[10px] text-gray-400 px-1">
-          {message.timestamp ? formatTimestamp(message.timestamp) : ''}
-        </span>
-      </div>
-    </motion.div>
+      {isUser ? (
+        <div className="rounded-[18px] rounded-br-sm bg-navy-600 px-4 py-3 text-sm text-white shadow-card">
+          {message.content}
+        </div>
+      ) : (
+        <div className="rounded-[18px] rounded-bl-sm border border-medical-border bg-white p-3 shadow-card">
+          {message.triageData ? (
+            <TriageCard data={message.triageData} />
+          ) : (
+            <p className="text-sm text-slate-700">{message.content}</p>
+          )}
+        </div>
+      )}
+      <time className="mt-1 block text-xs text-medical-muted">
+        {new Date(message.timestamp || Date.now()).toLocaleTimeString()}
+      </time>
+    </motion.article>
   );
 }

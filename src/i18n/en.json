@@ -1,0 +1,18 @@
+{
+    "nav.triage": "Triage",
+    "nav.dashboard": "Dashboard",
+    "nav.history": "History",
+    "nav.settings": "Settings",
+    "chat.newSession": "New Triage Session",
+    "chat.typePrompt": "Describe symptoms or ask a question",
+    "patient.age": "Patient Age",
+    "patient.symptoms": "Symptoms",
+    "triage.possibleCondition": "Possible Condition",
+    "triage.urgency": "Urgency Level",
+    "triage.action": "Recommended Action",
+    "urgency.emergency": "EMERGENCY",
+    "urgency.urgent": "URGENT",
+    "urgency.routine": "ROUTINE",
+    "urgency.insufficient": "INSUFFICIENT",
+    "disclaimer.text": "This is NOT a confirmed diagnosis."
+}

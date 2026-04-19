@@ -1,0 +1,18 @@
+{
+    "nav.triage": "ٹرائج",
+    "nav.dashboard": "ڈیش بورڈ",
+    "nav.history": "ہسٹری",
+    "nav.settings": "سیٹنگز",
+    "chat.newSession": "نئی ٹرائج سیشن",
+    "chat.typePrompt": "علامات بیان کریں یا سوال پوچھیں",
+    "patient.age": "مریض کی عمر",
+    "patient.symptoms": "علامات",
+    "triage.possibleCondition": "ممکنہ بیماری",
+    "triage.urgency": "فوری سطح",
+    "triage.action": "تجویز کردہ عمل",
+    "urgency.emergency": "ہنگامی",
+    "urgency.urgent": "فوری",
+    "urgency.routine": "معمول",
+    "urgency.insufficient": "ناکافی",
+    "disclaimer.text": "یہ حتمی تشخیص نہیں ہے۔"
+}
